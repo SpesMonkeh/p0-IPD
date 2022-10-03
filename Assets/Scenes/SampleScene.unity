@@ -2892,9 +2892,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9060a71b829e4c78872f0ef5a4923d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelResolution: 8
-  chunkResolution: 4
-  size: 4
+  voxelResolution: 16
+  chunkResolution: 1
+  size: 5
   mainCam: {fileID: 519420031}
   voxelGridPrefab: {fileID: 5016700396700637760, guid: ce25c90acb27609409ada14045edfb8b, type: 3}
   displayManager: {fileID: 655730244}

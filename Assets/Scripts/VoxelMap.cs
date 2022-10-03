@@ -1,6 +1,4 @@
-﻿using System;
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class VoxelMap : MonoBehaviour
@@ -20,7 +18,7 @@ public class VoxelMap : MonoBehaviour
 	Vector3 cachedCoordinateTextPosition;
 
 	public bool IsUsingFill { get; set; }
-	Vector3 MousePosition => Mouse.current.position.ReadValue();
+	static Vector3 MousePosition => Mouse.current.position.ReadValue();
 	
 	void Awake()
 	{
@@ -49,18 +47,17 @@ public class VoxelMap : MonoBehaviour
 		}
 
 		if (displayManager.currentPanelMode != PanelMode.Creative) return;
-
-		if (hitInfo.collider.gameObject == gameObject)
-			EditVoxels(transform.InverseTransformPoint(hitInfo.point));
+		if (hitInfo.collider.gameObject != gameObject) return;
+		EditVoxels(transform.InverseTransformPoint(hitInfo.point));
 	}
 
 	void CreateChunk(int i, int x, int y)
 	{
-		VoxelGrid chunk = Instantiate(voxelGridPrefab, transform, true);
-		chunk.InitializeVoxelGrid(voxelResolution, chunkSize);
-		chunk.displayManager = displayManager;
-		chunk.transform.localPosition = new Vector3(x * chunkSize - halfSize, y * chunkSize - halfSize);
-		chunks[i] = chunk;
+		VoxelGrid grid = Instantiate(voxelGridPrefab, transform, true);
+		grid.displayManager = displayManager;
+		grid.InitializeVoxelGrid(voxelResolution, chunkSize);
+		grid.transform.localPosition = new Vector3(x * chunkSize - halfSize, y * chunkSize - halfSize);
+		chunks[i] = grid;
 	}
 
 	void EditVoxels(Vector3 point)

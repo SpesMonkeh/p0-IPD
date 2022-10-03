@@ -8,9 +8,13 @@ public class VoxelGrid : MonoBehaviour
     [SerializeField] GameObject voxelPrefab;
 
     int voxelResolution;
-    bool[] voxels;
     float voxelSize;
+    Voxel[] voxels;
     Material[] voxelMaterials;
+    
+    [Space, Header("Timer: ")]
+    public float timer;
+    public float update = 5;
 
     Vector3 VoxelScale => Vector3.one * voxelSize * .9f;
 
@@ -18,7 +22,7 @@ public class VoxelGrid : MonoBehaviour
     {
         voxelResolution = resolution;
         voxelSize = size / resolution;
-        voxels = new bool[resolution * resolution];
+        voxels = new Voxel[resolution * resolution];
         voxelMaterials = new Material[voxels.Length];
 
         for (int i = 0, y = 0; y < resolution; y++)
@@ -34,13 +38,16 @@ public class VoxelGrid : MonoBehaviour
         var voxelGO = Instantiate(voxelPrefab, transform, true);
         voxelGO.transform.localPosition = new Vector3((x + .5f) * voxelSize, (y + .5f) * voxelSize);
         voxelGO.transform.localScale = VoxelScale;
-        voxelMaterials[i] = voxelGO.GetComponent<MeshRenderer>().material;
+        
+        voxels[i] = voxelGO.GetComponent<Voxel>();
+        voxels[i].coordinate = new Vector2(x, y);
+        voxels[i].InitVoxel();
     }
 
     public void Apply(Vector2 voxelVector, VoxelStencil stencil)
     {
         int voxel = (int)(voxelVector.y * voxelResolution + voxelVector.x);
-        voxels[voxel] = stencil.Apply((int)voxelVector.x, (int)voxelVector.y);
+        voxels[voxel].UserEdited = stencil.Apply((int)voxelVector.x, (int)voxelVector.y);
         SetVoxelColors();
     }
 
@@ -48,23 +55,33 @@ public class VoxelGrid : MonoBehaviour
     {
         for (int i = 0; i < voxels.Length; i++)
         {
-            voxelMaterials[i].color = voxels[i] ? Color.black : Color.white;
+            var voxel = voxels[i];
+            voxels[i].SetColor(voxel.UserEdited ? Color.black : Color.white);
         }
     }
 
     void Update()
     {
         if (displayManager.currentPanelMode != PanelMode.None) return;
+
+        timer += 1f * Time.deltaTime;
+        if (timer < update) return;
+
         for (int i = 0; i < voxels.Length; i++)
         {
             bool isFirst = i == 0;
-            if(!isFirst && voxelMaterials[i - 1].color == Color.black)
-                voxelMaterials[i].color = Color.blue;
-            else if(voxelMaterials[i].color == Color.blue)
-                voxelMaterials[i - 2].color = Color.red;
+            if (!isFirst && voxels[i - 1].UserEdited)
+            {
+                voxels[i].color = Color.blue;
+            }
+            else if (i - 2 >= 0)
+            {
+                if (voxels[i].color == Color.blue && voxels[i - 2].color == Color.white)
+                    voxels[i].color = Color.red;
+            }
             else
-                voxelMaterials[i].color = voxels[i] ? Color.black : Color.white;
+                voxels[i].color = voxels[i].UserEdited ? Color.black : Color.white;
         }
+        timer = 0;
     }
-    
 }

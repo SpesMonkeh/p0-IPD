@@ -14,7 +14,7 @@ public class DisplayManager : MonoBehaviour
     [SerializeField] ButtonContainer frontPageButtons;
     [SerializeField] ButtonContainer returnButton;
     [Space, Header("Paneler:")]
-    [SerializeField] public PanelMode currentPanelMode;
+    [SerializeField] public PanelMode currentPanelMode = PanelMode.None;
     [SerializeField] PanelContainer panels;
 
     void Start()
