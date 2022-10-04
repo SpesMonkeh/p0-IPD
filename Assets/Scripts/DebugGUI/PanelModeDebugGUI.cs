@@ -14,7 +14,7 @@ public class PanelModeDebugGUI : DebugGUIBase
 
 	string SetPanelModeText()
 	{
-		string text = displayManager.currentPanelMode switch
+		string text = mapData.CurrentMode switch
 		{
 			PanelMode.None => "Front Page",
 			PanelMode.Creative => "Creative",

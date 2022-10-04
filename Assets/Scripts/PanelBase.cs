@@ -3,6 +3,7 @@
 public class PanelBase : MonoBehaviour
 {
 	[SerializeField] protected DisplayManager displayManager;
+	[SerializeField] protected VoxelMapData mapData;
 
-	protected PanelMode CurrentPanelMode => displayManager.currentPanelMode;
+	protected PanelMode CurrentPanelMode => mapData.CurrentMode;
 }

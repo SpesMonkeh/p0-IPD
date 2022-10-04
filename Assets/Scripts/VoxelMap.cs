@@ -3,14 +3,13 @@ using UnityEngine.InputSystem;
 
 public class VoxelMap : MonoBehaviour
 {
-	[SerializeField] int voxelResolution = 8;
-	[SerializeField] int chunkResolution = 2;
-	[SerializeField] float size = 2f;
 	[SerializeField] Camera mainCam;
 	[SerializeField] VoxelGrid voxelGridPrefab;
 	[SerializeField] DisplayManager displayManager;
 	[SerializeField] CoordinatesDebugGUI coordinatesGUI;
 
+	[SerializeField] VoxelMapData mapData;
+	
 	float chunkSize;
 	float halfSize;
 	float voxelSize;
@@ -22,19 +21,23 @@ public class VoxelMap : MonoBehaviour
 	
 	void Awake()
 	{
-		halfSize = size * .5f;
-		chunkSize = size / chunkResolution;
-		voxelSize = chunkSize / voxelResolution;
-		chunks = new VoxelGrid[chunkResolution * chunkResolution];
+		var voxRez = mapData.VoxelResolution;
+		var chunkRez = mapData.ChunkResolution;
+		var sz = mapData.Size;
 		
-		for (int i = 0, y = 0; y < chunkResolution; y++)
+		halfSize = sz * .5f;
+		chunkSize = sz / chunkRez;
+		voxelSize = chunkSize / voxRez;
+		chunks = new VoxelGrid[chunkRez * chunkRez];
+		
+		for (int i = 0, y = 0; y < chunkRez; y++)
 		{
-			for (int x = 0; x < chunkResolution; x++, i++)
+			for (int x = 0; x < chunkRez; x++, i++)
 				CreateChunk(i, x, y);
 		}
 		
 		var box = gameObject.AddComponent<BoxCollider>();
-		box.size = new Vector3(size, size);
+		box.size = new Vector3(sz, sz);
 		cachedCoordinateTextPosition = coordinatesGUI.transform.position;
 	}
 
@@ -46,8 +49,10 @@ public class VoxelMap : MonoBehaviour
 			return;
 		}
 
-		if (displayManager.currentPanelMode != PanelMode.Creative) return;
+		if (mapData.CurrentMode != PanelMode.None) return;
 		if (hitInfo.collider.gameObject != gameObject) return;
+		if (!Mouse.current.leftButton.isPressed) return;
+		
 		EditVoxels(transform.InverseTransformPoint(hitInfo.point));
 	}
 
@@ -55,7 +60,7 @@ public class VoxelMap : MonoBehaviour
 	{
 		VoxelGrid grid = Instantiate(voxelGridPrefab, transform, true);
 		grid.displayManager = displayManager;
-		grid.InitializeVoxelGrid(voxelResolution, chunkSize);
+		grid.InitializeVoxelGrid(mapData);
 		grid.transform.localPosition = new Vector3(x * chunkSize - halfSize, y * chunkSize - halfSize);
 		chunks[i] = grid;
 	}
@@ -69,20 +74,17 @@ public class VoxelMap : MonoBehaviour
 		int centerY = (int)(bottomLeftY / voxelSize);
 		Vector2 centerVector = new Vector2(centerX, centerY);
 		
-		int chunkX = centerX / voxelResolution;
-		int chunkY = centerY / voxelResolution;
+		int chunkX = centerX / mapData.VoxelResolution;
+		int chunkY = centerY / mapData.VoxelResolution;
 		Vector2 chunkVector = new Vector2(chunkX, chunkY);
 
 		HandleVoxelCoordinatesText(true,  centerVector, chunkVector);
 		
-		int chunk = chunkY * chunkResolution + chunkX;
+		int chunk = chunkY * mapData.ChunkResolution + chunkX;
 		VoxelStencil activeStencil = new();
 		activeStencil.Init(IsUsingFill);
 		activeStencil.SetCenter(centerVector);
 		
-		centerX -= chunkX * voxelResolution;
-		centerY -= chunkY * voxelResolution;
-		centerVector = new Vector2(centerX, centerY);
 		chunks[chunk].Apply(centerVector, activeStencil);
 	}
 

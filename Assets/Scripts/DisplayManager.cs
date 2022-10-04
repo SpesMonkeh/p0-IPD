@@ -1,21 +1,23 @@
+using System;
 using UnityEngine;
 
-public enum PanelMode
-{
-    None,
-    Creative,
-    Programming,
-    MoreInfo
-}
+
 
 public class DisplayManager : MonoBehaviour
 {
-    [Space, Header("Knapper:")]
+    [Space, Header("Buttons:")]
     [SerializeField] ButtonContainer frontPageButtons;
     [SerializeField] ButtonContainer returnButton;
-    [Space, Header("Paneler:")]
-    [SerializeField] public PanelMode currentPanelMode = PanelMode.None;
+    [Space, Header("Panels:")]
     [SerializeField] PanelContainer panels;
+
+    [Space, Header("Map Data:")]
+    [SerializeField] VoxelMapData mapData;
+
+    void Awake()
+    {
+        mapData.ResetTimer();
+    }
 
     void Start()
     {
@@ -23,25 +25,30 @@ public class DisplayManager : MonoBehaviour
         HidePanels();
     }
 
+    void Update()
+    {
+        mapData.RunTimer();
+    }
+
     public void ShowCreativePanel()
     {
         ShowFrontPageButtons(false);
         panels.CreativePanelGO.SetActive(true);
-        currentPanelMode = PanelMode.Creative;
+        mapData.CurrentMode = PanelMode.Creative;
     }
 
     public void ShowProgrammingPanel()
     {
         ShowFrontPageButtons(false);
         panels.ProgrammingPanelGO.SetActive(true);
-        currentPanelMode = PanelMode.Programming;
+        mapData.CurrentMode = PanelMode.Programming;
     }
 
     public void ShowMoreInfoPanel()
     {
         ShowFrontPageButtons(false);
         panels.MoreInfoPanelGO.SetActive(true);
-        currentPanelMode = PanelMode.MoreInfo;
+        mapData.CurrentMode = PanelMode.MoreInfo;
     }
 
     public void HidePanels()
@@ -56,6 +63,6 @@ public class DisplayManager : MonoBehaviour
         frontPageButtons.gameObject.SetActive(doShow);
         returnButton.gameObject.SetActive(!doShow);
         if (!doShow) return;
-        currentPanelMode = PanelMode.None;
+        mapData.CurrentMode = PanelMode.None;
     }
 }
