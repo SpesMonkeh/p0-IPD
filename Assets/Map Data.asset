@@ -15,7 +15,7 @@ MonoBehaviour:
   voxelResolution: 16
   chunkResolution: 1
   size: 4
-  currentPanelMode: 2
+  currentPanelMode: 0
   doRunTimer: 1
-  timer: 24.948223
-  refreshTimer: 1
+  timer: 0.41679662
+  refreshTimer: 0.44

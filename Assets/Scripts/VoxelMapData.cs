@@ -23,7 +23,7 @@ public class VoxelMapData : ScriptableObject
 	[Space, Header("Display Timer:")]
 	[SerializeField] bool doRunTimer = true;
 	[SerializeField] float timer;
-	[SerializeField, Range(1f, 10f)] float refreshTimer = 1f;
+	[SerializeField, Range(.1f, 10f)] float refreshTimer = 1f;
 	
 	public Action refreshDisplay;
 

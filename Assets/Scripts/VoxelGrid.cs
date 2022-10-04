@@ -35,12 +35,10 @@ public class VoxelGrid : MonoBehaviour
         foreach (var vox in voxDict.Select(pair => pair.Value))
         {
             vox.SetSurroundingVoxels(new SurroundingVoxels(mapData.VoxelResolution, vox, voxDict));
+            SetVoxelColors(vox);
         }
-        SetVoxelColors();
-        
         
         mapData.refreshDisplay += UpdateGrid;
-
     }
 
     void CreateVoxel(int i, int x, int y)
@@ -59,72 +57,24 @@ public class VoxelGrid : MonoBehaviour
     public void Apply(Vector2 voxelVector, VoxelStencil stencil)
     {
         var doApply = stencil.Apply((int)voxelVector.x, (int)voxelVector.y);
-        if (doApply && voxDict[voxelVector].Type == VoxelType.Open)
-            voxDict[voxelVector].Type = VoxelType.Root;
-        if(doApply && voxDict[voxelVector].Type == VoxelType.Tip)
-            voxDict[voxelVector].Type = VoxelType.Branch;
-        SetVoxelColors();
-    }
-
-    void SetVoxelColors()
-    {
-        foreach (var voxel in voxDict.Select(pair => pair.Value))
-        {
-            if(voxel.IsRoot)
-                voxel.SetColor(Color.black);
-            if (voxel.IsTip)
-                MakeVoxelBranch(voxel);
-        }
+        if (doApply && voxDict[voxelVector].Type == VoxelType.Empty)
+            voxDict[voxelVector].Type = VoxelType.Type1;
+        if(doApply && voxDict[voxelVector].Type == VoxelType.Type4)
+            voxDict[voxelVector].Type = VoxelType.Type2;
         
-        foreach (var num in v2Dict.Select(number => number.Key))
-        {
-            var v2 = v2Dict[num];
-            var voxel = voxDict[v2];
-            if(voxel.IsRoot)
-            {
-                foreach (var sV in voxel.SurroundingVoxels.straights)
-                {
-                    if (sV.affectedByVoxels.Contains(voxel)) continue;
-                    if (sV.IsOpen)
-                    {
-                        GrowVoxelTip(sV, voxel);
-                    }
-                    else if (sV.IsTip)
-                    {
-                        GrowVoxelBranch(sV, voxel);
-                    }
-                    else if (sV.IsBranch)
-                    {
-                        sV.Type = VoxelType.Junction;
-                        sV.Color = Color.red;
-                    }
-                    else if (sV.IsRoot)
-                    {
-                        sV.Color += new Color(.5f, 0f, 0f);
-                    }
-                    sV.affectedByVoxels.Add(voxel);
-                }
-            }
-
-            if (voxel.IsBranch)
-            {
-                if (voxel.SurroundingVoxels.leftVoxel.IsOpen || voxel.SurroundingVoxels.rightVoxel.IsOpen)
-                {
-                    if (voxel.SurroundingVoxels.downVoxel.Type != VoxelType.Open)
-                    {
-                        if (voxel.SurroundingVoxels.northVoxel.Type == VoxelType.Open)
-                        {
-                            GrowVoxelTip(voxel.SurroundingVoxels.northVoxel, voxel);
-                        }
-                    }
-                }
-            }
-        }
+        SetVoxelColors(voxDict[voxelVector]);
+    }
+    
+    void SetVoxelColors(Voxel voxel)
+    {
+        HandleRootVoxel(voxel);
+        HandleBranchVoxel(voxel);
+        HandleTipVoxel(voxel);
     }
 
     void MakeVoxelBranch(Voxel voxel)
     {
-        voxel.Type = VoxelType.Branch;
+        voxel.Type = VoxelType.Type2;
         voxel.Color = Color.yellow;
     }
 
@@ -137,12 +87,13 @@ public class VoxelGrid : MonoBehaviour
     
     void MakeVoxelTip(Voxel voxel)
     {
-        voxel.Type = VoxelType.Tip;
+        voxel.Type = VoxelType.Type4;
         voxel.Color = Color.blue;
     }
 
     void GrowVoxelTip(Voxel voxel, Voxel affectedBy)
     {
+        if (!affectedBy) return;
         if (voxel.affectedByVoxels.Contains(affectedBy)) return;
         MakeVoxelTip(voxel);
         voxel.affectedByVoxels.Add(affectedBy);
@@ -150,22 +101,73 @@ public class VoxelGrid : MonoBehaviour
 
     void UpdateGrid()
     {
-        SetVoxelColors();
-        /*for (int i = 0; i < voxels.Length; i++)
+        foreach (var voxel in voxDict.Values)
         {
-            bool isFirst = i == 0;
-            if (!isFirst && voxels[i - 1].wasModifiedByUser)
+            SetVoxelColors(voxel);
+            HandleLifeTime(voxel, 1);
+        }
+    }
+    
+    void HandleLifeTime(Voxel voxel, int ageAmount)
+    {
+        voxel.lifeTime = voxel.IsEmpty ? 0 : voxel.lifeTime + ageAmount;
+    }
+
+    void HandleRootVoxel(Voxel vox)
+    {
+        if (!vox.IsType1) return;
+
+        vox.SetColor(Color.black);
+
+        foreach (var sV in vox.SurroundingVoxels.straights.Where(sV => !sV.affectedByVoxels.Contains(vox)))
+        {
+            
+            if (sV.IsEmpty)
             {
-                voxels[i].color = Color.blue;
+                GrowVoxelTip(sV, vox);
             }
-            else if (i - 2 >= 0)
+            else if (sV.IsType4)
             {
-                if (voxels[i].color == Color.blue && voxels[i - 2].color == Color.white)
-                    voxels[i].color = Color.red;
+                GrowVoxelBranch(sV, vox);
             }
-            else
-                voxels[i].color = voxels[i].wasModifiedByUser ? Color.black : Color.white;
-        }*/
+            else if (sV.IsType2)
+            {
+                sV.Type = VoxelType.Type3;
+                sV.Color = Color.red;
+            }
+            else if (sV.IsType1)
+            {
+                sV.Color += new Color(.5f, 0f, 0f);
+            }
+
+            sV.affectedByVoxels.Add(vox);
+        }
+    }
+
+    void HandleTipVoxel(Voxel vox)
+    {
+        if (!vox.IsType4) return;
+        vox.SetColor(Color.green);
+
+        if (vox.lifeTime == 3)
+            vox.Type = VoxelType.Type2;
+    }
+    
+    void HandleBranchVoxel(Voxel vox)
+    {
+        if (!vox.IsType2) return;
+        var brown = new Color(.5f, .2f, .2f);
+        
+        vox.SetColor(brown);
+
+        var west = vox.HasWest && vox.West.IsEmpty;
+        var east = vox.HasEast && vox.East.IsEmpty;
+        var south = vox.HasSouth && vox.South.IsEmpty;
+        var north = vox.HasNorth && vox.North.IsEmpty;
+        
+        if (!west && !east || south || !north) return;
+
+        GrowVoxelTip(vox.North, vox);
     }
 
     void OnDisable()
