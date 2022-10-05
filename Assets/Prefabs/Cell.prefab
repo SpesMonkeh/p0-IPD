@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1744855292217103402}
   - component: {fileID: 863657283651474305}
   m_Layer: 0
-  m_Name: Quad
+  m_Name: Cell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-6170895997493324330
 MonoBehaviour:
@@ -46,11 +46,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2b7f414d365419885f6aac8ff41f83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editedByUser: 0
-  defaultColor: {r: 1, g: 1, b: 1, a: 1}
-  color: {r: 0, g: 0, b: 0, a: 0}
-  coordinate: {x: 0, y: 0}
+  number: 0
+  type: 0
+  defaultColor: {r: 0, g: 0, b: 0, a: 1}
+  color: {r: 0.5943396, g: 0, b: 0, a: 0}
+  coordinates: {x: 0, y: 0}
   material: {fileID: 0}
+  lifeTime: 0
+  borderCells:
+    n: {fileID: 0}
+    s: {fileID: 0}
+    e: {fileID: 0}
+    w: {fileID: 0}
+    nE: {fileID: 0}
+    nW: {fileID: 0}
+    sE: {fileID: 0}
+    sW: {fileID: 0}
+    sides: []
+    corners: []
+    northern: []
+    southern: []
+    western: []
+    eastern: []
+    all: []
+  affectedByCells: []
 --- !u!33 &1744855292217103402
 MeshFilter:
   m_ObjectHideFlags: 0

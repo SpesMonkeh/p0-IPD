@@ -12,7 +12,7 @@ public class DisplayManager : MonoBehaviour
     [SerializeField] PanelContainer panels;
 
     [Space, Header("Map Data:")]
-    [SerializeField] VoxelMapData mapData;
+    [SerializeField] CellMapData mapData;
 
     void Awake()
     {

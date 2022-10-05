@@ -9,14 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af52e0ead1354cc79e35a06816d29833, type: 3}
-  m_Name: Map Data
+  m_Script: {fileID: 11500000, guid: 2077ac1b944e4a2bbf19166ddcc5a1b6, type: 3}
+  m_Name: New Cell Type Data
   m_EditorClassIdentifier: 
-  cellResolution: 32
-  chunkResolution: 1
-  size: 6
-  currentPanelMode: 0
-  doRunTimer: 1
-  timer: 0.5041068
-  timesRefreshed: 12
-  refreshTimer: 1
+  emptyMaxAge: -1
+  t1MaxAge: 4
+  t2MaxAge: 6
+  t3MaxAge: 8
+  t4MaxAge: 10
+  defaultEmptyMaxAge: -1
+  defaultT1MaxAge: 4
+  defaultT2MaxAge: 6
+  defaultT3MaxAge: 8
+  defaultT4MaxAge: 10

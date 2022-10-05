@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class DisplayRefresh : MonoBehaviour
 {
-	[SerializeField] VoxelMapData mapData;
+	[SerializeField] CellMapData mapData;
 
 	[SerializeField] Slider refreshSlider;
 	[SerializeField] TextMeshProUGUI refreshTimeText;

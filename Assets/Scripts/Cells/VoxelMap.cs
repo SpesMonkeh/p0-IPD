@@ -8,11 +8,13 @@ public class VoxelMap : MonoBehaviour
 	[SerializeField] DisplayManager displayManager;
 	[SerializeField] CoordinatesDebugGUI coordinatesGUI;
 
-	[SerializeField] VoxelMapData mapData;
+	[Space, Header("Data:")]
+	[SerializeField] CellColorData colorData;
+	[SerializeField] CellMapData mapData;
 	
 	float chunkSize;
 	float halfSize;
-	float voxelSize;
+	float cellSize;
 	VoxelGrid[] chunks;
 	Vector3 cachedCoordinateTextPosition;
 
@@ -21,13 +23,15 @@ public class VoxelMap : MonoBehaviour
 	
 	void Awake()
 	{
-		var voxRez = mapData.VoxelResolution;
+		mapData.ResetAllTimerData();
+		
+		var cellRez = mapData.CellResolution;
 		var chunkRez = mapData.ChunkResolution;
 		var sz = mapData.Size;
 		
 		halfSize = sz * .5f;
 		chunkSize = sz / chunkRez;
-		voxelSize = chunkSize / voxRez;
+		cellSize = chunkSize / cellRez;
 		chunks = new VoxelGrid[chunkRez * chunkRez];
 		
 		for (int i = 0, y = 0; y < chunkRez; y++)
@@ -60,7 +64,7 @@ public class VoxelMap : MonoBehaviour
 	{
 		VoxelGrid grid = Instantiate(voxelGridPrefab, transform, true);
 		grid.displayManager = displayManager;
-		grid.InitializeVoxelGrid(mapData);
+		grid.InitializeCellGrid(mapData, colorData);
 		grid.transform.localPosition = new Vector3(x * chunkSize - halfSize, y * chunkSize - halfSize);
 		chunks[i] = grid;
 	}
@@ -70,12 +74,12 @@ public class VoxelMap : MonoBehaviour
 		var bottomLeftX = point.x + halfSize;
 		var bottomLeftY = point.y + halfSize;
 		
-		int centerX = (int)(bottomLeftX / voxelSize);
-		int centerY = (int)(bottomLeftY / voxelSize);
+		int centerX = (int)(bottomLeftX / cellSize);
+		int centerY = (int)(bottomLeftY / cellSize);
 		Vector2 centerVector = new Vector2(centerX, centerY);
 		
-		int chunkX = centerX / mapData.VoxelResolution;
-		int chunkY = centerY / mapData.VoxelResolution;
+		int chunkX = centerX / mapData.CellResolution;
+		int chunkY = centerY / mapData.CellResolution;
 		Vector2 chunkVector = new Vector2(chunkX, chunkY);
 
 		HandleVoxelCoordinatesText(true,  centerVector, chunkVector);
